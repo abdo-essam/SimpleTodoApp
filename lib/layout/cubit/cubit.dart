@@ -35,35 +35,43 @@ class TodoCubit extends Cubit<AppStates> {
       (value) {
         emit(OpenDatabaseState());
         database = value;
+        getTasks();
       },
     );
   }
 
-  List<Task> tasks = [];
+  List<Map<String, dynamic>> tasks = [];
+  List<Map<String, dynamic>> doneTasks = [];
+  List<Map<String, dynamic>> archivedTasks = [];
 
   void getTasks() {
+    tasks.clear();
     database.rawQuery('SELECT * FROM Task').then((rows) {
       for (var row in rows) {
-        tasks.add(Task(
-            row["id"].toString() as int,
-            row["title"].toString(),
-            row["time"].toString(),
-            row["date"].toString(),
-            row["status"].toString()));
+        tasks.add({
+          'id': row['id'],
+          'title': row['title'],
+          'time': row['time'],
+          'date': row['date'],
+         'status': row['status']
+        });
       }
       emit(GetTasksState());
     });
   }
 
   void insertTask(String title, String time, String date, String status) {
-    database.insert('Task', {
-      'title': title,
-      'time': time,
-      'date': date,
-      'status': status
-    }).then((value) {
-      print("task  $value successfully inserted");
+    database.insert('Task', {'title': title, 'time': time, 'date': date,'status': status}).then((id) {
+      print("task $id inserted successfully");
       emit(InsertTaskState());
+      getTasks();
+    });
+  }
+
+  void deleteTask(task){
+    database.delete('Task', where: 'id=?', whereArgs: [task['id'].toString()]).then((value) {
+      print("Task ${task['id']} deleted successfully");
+      emit(DeleteTaskState());
       getTasks();
     });
   }

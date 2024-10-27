@@ -6,3 +6,4 @@ class OpenDatabaseState extends AppStates{}
 class GetTasksState extends AppStates{}
 class InsertTaskState extends AppStates{}
 class ChangeBottomBarState extends AppStates{}
+class DeleteTaskState extends AppStates{}
